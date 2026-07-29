@@ -13,6 +13,23 @@ export interface RadarReport {
   weather: WeatherData;
   cityScore: number;
   topAreas: AreaOpportunity[];
+  eventsUsed: ManualEvent[];
+}
+
+function sortEvents(events: ManualEvent[]): ManualEvent[] {
+  return [...events].sort((a, b) => {
+    const areaComparison = a.area.localeCompare(b.area, "it");
+    if (areaComparison !== 0) {
+      return areaComparison;
+    }
+
+    const startComparison = a.startTimeLocal.localeCompare(b.startTimeLocal);
+    if (startComparison !== 0) {
+      return startComparison;
+    }
+
+    return a.name.localeCompare(b.name, "it");
+  });
 }
 
 function clamp(value: number, min = 0, max = 100): number {
@@ -153,5 +170,6 @@ export function buildRadarReport(
     weather,
     cityScore,
     topAreas: scoredAreas,
+    eventsUsed: sortEvents(events),
   };
 }

@@ -31,10 +31,12 @@ function formatEventsUsed(report: RadarReport): string[] {
     return ["Nessun evento considerato."];
   }
 
-  const rows = report.eventsUsed.slice(0, MAX_EVENTS_DISPLAY).map(
-    (event, idx) =>
-      `${idx + 1}. ${event.name} | Area: ${event.area} | Orario: ${event.startTimeLocal}-${event.endTimeLocal} | Tipo: ${event.kind} | Affluenza stimata: ${event.expectedAttendance}`,
-  );
+  const rows = report.eventsUsed
+    .slice(0, MAX_EVENTS_DISPLAY)
+    .map(
+      (event, idx) =>
+        `${idx + 1}. ${event.name} | Area: ${event.area} | Orario: ${event.startTimeLocal}-${event.endTimeLocal} | Tipo: ${event.kind} | Affluenza stimata: ${event.expectedAttendance}`,
+    );
 
   const hiddenEvents = report.eventsUsed.length - MAX_EVENTS_DISPLAY;
   if (hiddenEvents > 0) {

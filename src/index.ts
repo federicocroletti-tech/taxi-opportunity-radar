@@ -12,20 +12,17 @@ async function main() {
     const weather = await getWeather();
     const eventLoad = await loadRadarEvents();
     const report = buildRadarReport(weather, eventLoad.events);
+    const reportContext = {
+      sourceMode: eventLoad.sourceMode,
+      failedSources: eventLoad.failedSources,
+    };
 
-    const textReport = buildTextReport(report);
+    const textReport = buildTextReport(report, reportContext);
     console.log(textReport);
-    console.log(
-      `\nSorgente eventi: ${eventLoad.sourceMode} | Eventi caricati: ${eventLoad.events.length}`,
-    );
-    if (eventLoad.failedSources.length > 0) {
-      console.log(
-        `Sorgenti web non raggiungibili: ${eventLoad.failedSources.join(", ")}`,
-      );
-    }
+    console.log(`\nEventi caricati: ${eventLoad.events.length}`);
 
     const mailSubject = `Taxi Opportunity Radar Milano - ${new Date(report.generatedAtIso).toLocaleDateString("it-IT")}`;
-    const mailHtml = buildHtmlReport(report);
+    const mailHtml = buildHtmlReport(report, reportContext);
     const emailSent = await sendDailyEmail(mailSubject, mailHtml);
 
     if (emailSent) {
