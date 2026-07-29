@@ -2,20 +2,24 @@
   "city": "Milano",
   "events": [
     {
-      "name": "Concerto Stadio San Siro",
+      "name": "Concerto live a San Siro - artista internazionale",
       "area": "San Siro",
       "kind": "concert",
       "startTimeLocal": "19:30",
       "endTimeLocal": "23:30",
-      "expectedAttendance": 52000
+      "expectedAttendance": 52000,
+      "venue": "Stadio San Siro",
+      "source": "Fallback manuale"
     },
     {
-      "name": "Fiera Milano Rho - Evento business",
+      "name": "Fiera Milano Rho - salone professionale business",
       "area": "Rho Fiera",
       "kind": "fair",
       "startTimeLocal": "09:00",
       "endTimeLocal": "18:00",
-      "expectedAttendance": 18000
+      "expectedAttendance": 18000,
+      "venue": "Fiera Milano Rho",
+      "source": "Fallback manuale"
     },
     {
       "name": "Movida Navigli",
@@ -23,7 +27,9 @@
       "kind": "nightlife",
       "startTimeLocal": "21:00",
       "endTimeLocal": "01:00",
-      "expectedAttendance": 9000
+      "expectedAttendance": 9000,
+      "venue": "Navigli",
+      "source": "Fallback manuale"
     }
   ]
 }

@@ -33,10 +33,19 @@ function formatEventsUsed(report: RadarReport): string[] {
 
   const rows = report.eventsUsed
     .slice(0, MAX_EVENTS_DISPLAY)
-    .map(
-      (event, idx) =>
-        `${idx + 1}. ${event.name} | Area: ${event.area} | Orario: ${event.startTimeLocal}-${event.endTimeLocal} | Tipo: ${event.kind} | Affluenza stimata: ${event.expectedAttendance}`,
-    );
+    .map((event, idx) => {
+      const extra = [
+        event.venue ? `Venue: ${event.venue}` : "",
+        event.source ? `Fonte: ${event.source}` : "",
+      ]
+        .filter(Boolean)
+        .join(" | ");
+
+      const detail = event.detail ? ` | Dettaglio: ${event.detail}` : "";
+      const link = event.url ? ` | Link: ${event.url}` : "";
+
+      return `${idx + 1}. ${event.name} | Area: ${event.area} | Orario: ${event.startTimeLocal}-${event.endTimeLocal} | Tipo: ${event.kind} | Affluenza stimata: ${event.expectedAttendance}${extra ? ` | ${extra}` : ""}${detail}${link}`;
+    });
 
   const hiddenEvents = report.eventsUsed.length - MAX_EVENTS_DISPLAY;
   if (hiddenEvents > 0) {
@@ -97,10 +106,18 @@ export function buildHtmlReport(
     report.eventsUsed.length > 0
       ? report.eventsUsed
           .slice(0, MAX_EVENTS_DISPLAY)
-          .map(
-            (event) =>
-              `<li><strong>${event.name}</strong><br/><small>Area: ${event.area} | Orario: ${event.startTimeLocal}-${event.endTimeLocal} | Tipo: ${event.kind} | Affluenza stimata: ${event.expectedAttendance}</small></li>`,
-          )
+          .map((event) => {
+            const venue = event.venue ? ` | Venue: ${event.venue}` : "";
+            const source = event.source ? ` | Fonte: ${event.source}` : "";
+            const detail = event.detail
+              ? `<br/><small>Dettaglio: ${event.detail}</small>`
+              : "";
+            const link = event.url
+              ? `<br/><small><a href="${event.url}">Pagina evento</a></small>`
+              : "";
+
+            return `<li><strong>${event.name}</strong><br/><small>Area: ${event.area} | Orario: ${event.startTimeLocal}-${event.endTimeLocal} | Tipo: ${event.kind} | Affluenza stimata: ${event.expectedAttendance}${venue}${source}</small>${detail}${link}</li>`;
+          })
           .join("") +
         (() => {
           const hiddenEvents = report.eventsUsed.length - MAX_EVENTS_DISPLAY;

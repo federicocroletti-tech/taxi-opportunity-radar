@@ -17,6 +17,10 @@ export interface ManualEvent {
   startTimeLocal: string;
   endTimeLocal: string;
   expectedAttendance: number;
+  venue?: string;
+  source?: string;
+  detail?: string;
+  url?: string;
 }
 
 interface EventsConfigFile {
@@ -127,6 +131,68 @@ function normalizeTime(value: unknown, fallback: string): string {
   });
 }
 
+function compactText(value: string): string {
+  return value.replace(/\s+/g, " ").trim();
+}
+
+function truncateText(value: string, maxLength: number): string {
+  return value.length <= maxLength
+    ? value
+    : `${value.slice(0, maxLength - 1)}…`;
+}
+
+function extractVenue(location: unknown): string | undefined {
+  if (!location || typeof location !== "object") {
+    return undefined;
+  }
+
+  const loc = location as Record<string, unknown>;
+  if (typeof loc.name === "string" && loc.name.trim().length > 0) {
+    return compactText(loc.name);
+  }
+
+  return undefined;
+}
+
+function extractEventName(
+  node: Record<string, unknown>,
+  sourceName: string,
+): string {
+  if (typeof node.name === "string" && node.name.trim().length > 0) {
+    return compactText(node.name);
+  }
+
+  if (
+    typeof node.description === "string" &&
+    node.description.trim().length > 0
+  ) {
+    return truncateText(compactText(node.description), 90);
+  }
+
+  return `Evento da ${sourceName}`;
+}
+
+function extractEventDetail(
+  node: Record<string, unknown>,
+  eventName: string,
+): string | undefined {
+  if (
+    typeof node.description !== "string" ||
+    node.description.trim().length === 0
+  ) {
+    return undefined;
+  }
+
+  const normalizedDescription = compactText(node.description);
+  const normalizedName = compactText(eventName);
+
+  if (normalizedDescription.toLowerCase() === normalizedName.toLowerCase()) {
+    return undefined;
+  }
+
+  return truncateText(normalizedDescription, 140);
+}
+
 function locationToText(location: unknown): string {
   if (typeof location === "string") {
     return location;
@@ -221,12 +287,7 @@ function parseEventsFromHtml(
     const eventNodes = extractEventNodes(parsed);
 
     for (const node of eventNodes) {
-      const name =
-        typeof node.name === "string"
-          ? node.name.trim()
-          : typeof node.description === "string"
-            ? node.description.trim().slice(0, 90)
-            : "";
+      const name = extractEventName(node, source.name);
       if (!name) {
         continue;
       }
@@ -234,6 +295,9 @@ function parseEventsFromHtml(
       const startTimeLocal = normalizeTime(node.startDate, "19:00");
       const endTimeLocal = normalizeTime(node.endDate, "23:00");
       const locationText = locationToText(node.location);
+      const venue = extractVenue(node.location);
+      const detail = extractEventDetail(node, name);
+      const eventUrl = typeof node.url === "string" ? node.url : undefined;
       const area = inferArea(
         locationText || name,
         source.defaultArea ?? "Milano Centro",
@@ -247,6 +311,17 @@ function parseEventsFromHtml(
         endTimeLocal,
         expectedAttendance: source.defaultAttendance ?? 5000,
       };
+
+      if (venue) {
+        manualEvent.venue = venue;
+      }
+      manualEvent.source = source.name;
+      if (detail) {
+        manualEvent.detail = detail;
+      }
+      if (eventUrl) {
+        manualEvent.url = eventUrl;
+      }
 
       if (isValidEvent(manualEvent)) {
         allEvents.push(manualEvent);
