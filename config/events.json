@@ -1,0 +1,29 @@
+{
+  "city": "Milano",
+  "events": [
+    {
+      "name": "Concerto Stadio San Siro",
+      "area": "San Siro",
+      "kind": "concert",
+      "startTimeLocal": "19:30",
+      "endTimeLocal": "23:30",
+      "expectedAttendance": 52000
+    },
+    {
+      "name": "Fiera Milano Rho - Evento business",
+      "area": "Rho Fiera",
+      "kind": "fair",
+      "startTimeLocal": "09:00",
+      "endTimeLocal": "18:00",
+      "expectedAttendance": 18000
+    },
+    {
+      "name": "Movida Navigli",
+      "area": "Navigli",
+      "kind": "nightlife",
+      "startTimeLocal": "21:00",
+      "endTimeLocal": "01:00",
+      "expectedAttendance": 9000
+    }
+  ]
+}

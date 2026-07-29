@@ -1,0 +1,29 @@
+{
+  "city": "Milano",
+  "sources": [
+    {
+      "name": "San Siro Eventi",
+      "url": "https://www.sansirostadium.com/eventi/",
+      "kind": "concert",
+      "defaultArea": "San Siro",
+      "defaultAttendance": 45000,
+      "maxEvents": 8
+    },
+    {
+      "name": "Fiera Milano Eventi",
+      "url": "https://www.fieramilano.it/eventi",
+      "kind": "fair",
+      "defaultArea": "Rho Fiera",
+      "defaultAttendance": 18000,
+      "maxEvents": 8
+    },
+    {
+      "name": "Eventbrite Milano",
+      "url": "https://www.eventbrite.it/d/italy--milan/events/",
+      "kind": "nightlife",
+      "defaultArea": "Milano Centro",
+      "defaultAttendance": 5000,
+      "maxEvents": 12
+    }
+  ]
+}
