@@ -2,7 +2,7 @@ name: Daily Taxi Radar
 
 on:
   schedule:
-    - cron: "0 6 * * 1-5"
+    - cron: "0 * * * 1-5"
   workflow_dispatch:
 
 jobs:
@@ -25,7 +25,28 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Check 06:00 Europe/Rome
+        id: local-time-gate
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          HOUR=$(TZ='Europe/Rome' date +%H)
+          if [ "$HOUR" = "06" ]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip outside 06:00 Europe/Rome
+        if: steps.local-time-gate.outputs.should_run != 'true'
+        run: |
+          echo "Job saltato: non sono le 06:00 in Europe/Rome."
+          exit 0
+
       - name: Run radar
+        if: steps.local-time-gate.outputs.should_run == 'true'
         env:
           BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
           EMAIL_FROM: ${{ secrets.EMAIL_FROM }}

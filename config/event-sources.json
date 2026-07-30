@@ -2,28 +2,59 @@
   "city": "Milano",
   "sources": [
     {
-      "name": "San Siro Eventi",
-      "url": "https://www.sansirostadium.com/eventi/",
-      "kind": "concert",
+      "name": "San Siro Feed Ufficiale",
+      "url": "https://sansirostadium.com/events/feed/",
+      "sourceType": "rss",
+      "kind": "sports",
       "defaultArea": "San Siro",
       "defaultAttendance": 45000,
-      "maxEvents": 8
+      "maxEvents": 8,
+      "maxAgeHours": 96,
+      "maxFutureHours": 240
     },
     {
       "name": "Fiera Milano Eventi",
       "url": "https://www.fieramilano.it/eventi",
+      "sourceType": "jsonld-html",
       "kind": "fair",
       "defaultArea": "Rho Fiera",
       "defaultAttendance": 18000,
-      "maxEvents": 8
+      "maxEvents": 10,
+      "maxAgeHours": 24,
+      "maxFutureHours": 720
     },
     {
-      "name": "Eventbrite Milano",
+      "name": "Eventbrite Milano Eventi",
       "url": "https://www.eventbrite.it/d/italy--milan/events/",
+      "sourceType": "jsonld-html",
       "kind": "nightlife",
       "defaultArea": "Milano Centro",
       "defaultAttendance": 5000,
-      "maxEvents": 12
+      "maxEvents": 14,
+      "maxAgeHours": 24,
+      "maxFutureHours": 720
+    },
+    {
+      "name": "Il Giorno Milano RSS",
+      "url": "https://www.ilgiorno.it/rss/milano.xml",
+      "sourceType": "rss",
+      "kind": "transport-disruption",
+      "defaultArea": "Milano Centro",
+      "defaultAttendance": 9000,
+      "maxEvents": 6,
+      "maxAgeHours": 30,
+      "maxFutureHours": 12
+    },
+    {
+      "name": "ANSA Lombardia RSS",
+      "url": "https://www.ansa.it/lombardia/notizie/lombardia_rss.xml",
+      "sourceType": "rss",
+      "kind": "transport-disruption",
+      "defaultArea": "Milano Centro",
+      "defaultAttendance": 8500,
+      "maxEvents": 6,
+      "maxAgeHours": 30,
+      "maxFutureHours": 12
     }
   ]
 }

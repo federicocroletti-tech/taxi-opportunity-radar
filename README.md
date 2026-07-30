@@ -13,6 +13,8 @@ Sistema che monitora eventi, meteo e altre opportunità locali per aiutare tassi
 
 - Lettura meteo da Open-Meteo (pioggia, temperatura massima, vento massimo)
 - Lettura eventi dal web da sorgenti configurate in `config/event-sources.json`
+- Supporto sorgenti multiple: pagine HTML con JSON-LD e feed RSS
+- Filtro di qualita per scartare voci non operative (es. "nessun concerto in programma")
 - Calcolo score per area con ranking opportunita
 - Calcolo city score sintetico
 - Report testuale su console
@@ -36,6 +38,11 @@ npm run dev
 
 Modifica `config/event-sources.json` per scegliere le pagine da cui leggere gli eventi.
 
+`sourceType` supportati:
+
+- `jsonld-html`: parser dei blocchi `application/ld+json` di tipo `Event`
+- `rss`: parser feed RSS/Atom con estrazione titolo, data, dettaglio e link
+
 Esempio struttura:
 
 ```json
@@ -43,18 +50,25 @@ Esempio struttura:
   "city": "Milano",
   "sources": [
     {
-      "name": "San Siro Eventi",
-      "url": "https://www.sansirostadium.com/eventi/",
-      "kind": "concert",
+      "name": "San Siro Feed Ufficiale",
+      "url": "https://sansirostadium.com/events/feed/",
+      "sourceType": "rss",
+      "kind": "sports",
       "defaultArea": "San Siro",
       "defaultAttendance": 45000,
-      "maxEvents": 8
+      "maxEvents": 8,
+      "maxAgeHours": 96,
+      "maxFutureHours": 240
     }
   ]
 }
 ```
 
-Il parser legge i blocchi `application/ld+json` di tipo `Event` direttamente dalle pagine web.
+Campo facoltativi per fonte:
+
+- `maxEvents`: massimo elementi da importare da quella sorgente
+- `maxAgeHours`: eta massima notizia/evento in ore
+- `maxFutureHours`: quanto nel futuro accettare eventi/notizie datate
 
 Se nel tuo ambiente locale Node non riesce a validare alcuni certificati HTTPS delle sorgenti eventi, puoi usare temporaneamente:
 
@@ -107,7 +121,7 @@ Workflow incluso: `.github/workflows/daily-radar.yml`
 
 Guida completa di deploy operativo: `docs/DEPLOY-GITHUB-ACTIONS.md`
 
-- esecuzione pianificata lun-ven ore 06:00 UTC
+- controllo pianificato ogni ora lun-ven (UTC) con esecuzione effettiva solo alle 06:00 Europe/Rome
 - esecuzione manuale via `workflow_dispatch`
 
 Secret GitHub consigliati:

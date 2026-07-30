@@ -1,6 +1,15 @@
 import { RadarReport } from "./score";
+import { EventKind } from "./events";
 
 const MAX_EVENTS_DISPLAY = 10;
+
+const EVENT_KIND_LABELS: Record<EventKind, string> = {
+  concert: "Concerto",
+  sports: "Sport",
+  fair: "Fiera / Business",
+  "transport-disruption": "Trasporti / Viabilita",
+  nightlife: "Nightlife",
+};
 
 export interface ReportContext {
   sourceMode: "web" | "manual-fallback";
@@ -13,6 +22,10 @@ function formatWeather(report: RadarReport): string[] {
     `Pioggia prevista: ${report.weather.rainMm.toFixed(1)} mm`,
     `Vento max: ${report.weather.maxWindKmh.toFixed(1)} km/h`,
   ];
+}
+
+function formatKind(kind: EventKind): string {
+  return EVENT_KIND_LABELS[kind] ?? kind;
 }
 
 function formatAreas(report: RadarReport): string[] {
@@ -44,7 +57,7 @@ function formatEventsUsed(report: RadarReport): string[] {
       const detail = event.detail ? ` | Dettaglio: ${event.detail}` : "";
       const link = event.url ? ` | Link: ${event.url}` : "";
 
-      return `${idx + 1}. ${event.name} | Area: ${event.area} | Orario: ${event.startTimeLocal}-${event.endTimeLocal} | Tipo: ${event.kind} | Affluenza stimata: ${event.expectedAttendance}${extra ? ` | ${extra}` : ""}${detail}${link}`;
+      return `${idx + 1}. ${event.name} | Area: ${event.area} | Orario: ${event.startTimeLocal}-${event.endTimeLocal} | Tipo: ${formatKind(event.kind)} | Affluenza stimata: ${event.expectedAttendance}${extra ? ` | ${extra}` : ""}${detail}${link}`;
     });
 
   const hiddenEvents = report.eventsUsed.length - MAX_EVENTS_DISPLAY;
@@ -53,6 +66,37 @@ function formatEventsUsed(report: RadarReport): string[] {
   }
 
   return rows;
+}
+
+function formatKindDistribution(report: RadarReport): string[] {
+  if (report.eventsUsed.length === 0) {
+    return ["Nessun tipo disponibile."];
+  }
+
+  const counter = new Map<EventKind, number>();
+  for (const event of report.eventsUsed) {
+    counter.set(event.kind, (counter.get(event.kind) ?? 0) + 1);
+  }
+
+  return Array.from(counter.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([kind, count]) => `- ${formatKind(kind)}: ${count}`);
+}
+
+function formatSourceDistribution(report: RadarReport): string[] {
+  if (report.eventsUsed.length === 0) {
+    return ["Nessuna sorgente disponibile."];
+  }
+
+  const counter = new Map<string, number>();
+  for (const event of report.eventsUsed) {
+    const source = event.source ?? "Sorgente non specificata";
+    counter.set(source, (counter.get(source) ?? 0) + 1);
+  }
+
+  return Array.from(counter.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([source, count]) => `- ${source}: ${count}`);
 }
 
 export function buildTextReport(
@@ -68,6 +112,7 @@ export function buildTextReport(
     `Generato: ${new Date(report.generatedAtIso).toLocaleString("it-IT")}`,
   );
   rows.push(`City Score Milano: ${report.cityScore}/100`);
+  rows.push(`Eventi/notizie validati: ${report.eventsUsed.length}`);
   if (context) {
     rows.push(`Sorgente eventi: ${context.sourceMode}`);
     if (context.failedSources.length > 0) {
@@ -79,6 +124,12 @@ export function buildTextReport(
   rows.push("");
   rows.push("METEO");
   rows.push(...formatWeather(report));
+  rows.push("");
+  rows.push("DISTRIBUZIONE TIPO NOTIZIA");
+  rows.push(...formatKindDistribution(report));
+  rows.push("");
+  rows.push("SORGENTI UTILIZZATE");
+  rows.push(...formatSourceDistribution(report));
   rows.push("");
   rows.push("TOP AREE");
   rows.push(...formatAreas(report));
@@ -93,6 +144,14 @@ export function buildHtmlReport(
   report: RadarReport,
   context?: ReportContext,
 ): string {
+  const kindDistributionHtml = formatKindDistribution(report)
+    .map((row) => `<li>${row.replace("- ", "")}</li>`)
+    .join("");
+
+  const sourceDistributionHtml = formatSourceDistribution(report)
+    .map((row) => `<li>${row.replace("- ", "")}</li>`)
+    .join("");
+
   const areaListHtml = report.topAreas
     .map(
       (area) =>
@@ -116,7 +175,7 @@ export function buildHtmlReport(
               ? `<br/><small><a href="${event.url}">Pagina evento</a></small>`
               : "";
 
-            return `<li><strong>${event.name}</strong><br/><small>Area: ${event.area} | Orario: ${event.startTimeLocal}-${event.endTimeLocal} | Tipo: ${event.kind} | Affluenza stimata: ${event.expectedAttendance}${venue}${source}</small>${detail}${link}</li>`;
+            return `<li><strong>${event.name}</strong><br/><small>Area: ${event.area} | Orario: ${event.startTimeLocal}-${event.endTimeLocal} | Tipo: ${formatKind(event.kind)} | Affluenza stimata: ${event.expectedAttendance}${venue}${source}</small>${detail}${link}</li>`;
           })
           .join("") +
         (() => {
@@ -139,6 +198,7 @@ export function buildHtmlReport(
   <h2>Taxi Opportunity Radar - Milano</h2>
   <p><strong>Data:</strong> ${new Date(report.generatedAtIso).toLocaleString("it-IT")}</p>
   <p><strong>City score:</strong> ${report.cityScore}/100</p>
+  <p><strong>Eventi/notizie validati:</strong> ${report.eventsUsed.length}</p>
   ${sourceHtml}
   <h3>Meteo</h3>
   <ul>
@@ -146,6 +206,10 @@ export function buildHtmlReport(
     <li>Pioggia prevista: ${report.weather.rainMm.toFixed(1)} mm</li>
     <li>Vento max: ${report.weather.maxWindKmh.toFixed(1)} km/h</li>
   </ul>
+  <h3>Distribuzione per tipo notizia</h3>
+  <ul>${kindDistributionHtml}</ul>
+  <h3>Distribuzione per sorgente</h3>
+  <ul>${sourceDistributionHtml}</ul>
   <h3>Top aree</h3>
   <ol>${areaListHtml}</ol>
   <h3>Eventi considerati</h3>

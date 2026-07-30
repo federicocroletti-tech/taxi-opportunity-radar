@@ -29,7 +29,8 @@ npm start
 
 Workflow attuale:
 
-- trigger automatico lun-ven con cron `0 6 * * 1-5`.
+- trigger automatico lun-ven ogni ora con cron `0 * * * 1-5`.
+- gate orario interno: il job completo parte solo alle 06:00 Europe/Rome.
 - trigger manuale con `workflow_dispatch`.
 - install dipendenze con `npm ci`.
 - build TypeScript con `npm run build`.
@@ -41,8 +42,10 @@ Esempio (08:00 UTC):
 
 ```yaml
 schedule:
-  - cron: "0 8 * * 1-5"
+  - cron: "0 * * * 1-5"
 ```
+
+Poi aggiorna anche lo step `Check 06:00 Europe/Rome` impostando l'ora desiderata.
 
 ## Passo 2 - Configura Secret GitHub
 
@@ -113,12 +116,13 @@ L'app usa `config/events.json` dal repository. Hai due opzioni:
 
 - Verifica che il workflow sia su branch predefinito (es. `main`).
 - Verifica che Actions sia abilitato nel repository.
-- Ricorda che il cron è in UTC.
+- Ricorda che il cron e in UTC, ma l'esecuzione reale dipende dal gate timezone `Europe/Rome`.
 
 ### Eventi non considerati
 
 - Verifica JSON valido in `config/events.json`.
 - Controlla campi obbligatori: `name`, `area`, `startTimeLocal`, `endTimeLocal`, `expectedAttendance`.
+- Se usi sorgenti web/RSS, verifica `config/event-sources.json` e i campi `sourceType`, `maxAgeHours`, `maxFutureHours`.
 
 ## Hardening consigliato
 
