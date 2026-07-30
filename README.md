@@ -121,7 +121,7 @@ Workflow incluso: `.github/workflows/daily-radar.yml`
 
 Guida completa di deploy operativo: `docs/DEPLOY-GITHUB-ACTIONS.md`
 
-- controllo pianificato ogni ora lun-ven (UTC) con esecuzione effettiva solo alle 06:00 Europe/Rome
+- controllo pianificato ogni ora (UTC) con esecuzione effettiva solo alle 06:00 Europe/Rome
 - esecuzione manuale via `workflow_dispatch`
 
 Secret GitHub consigliati:

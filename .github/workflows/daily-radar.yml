@@ -2,7 +2,7 @@ name: Daily Taxi Radar
 
 on:
   schedule:
-    - cron: "0 * * * 1-5"
+    - cron: "0 * * * *"
   workflow_dispatch:
 
 jobs:

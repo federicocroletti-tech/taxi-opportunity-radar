@@ -29,7 +29,7 @@ npm start
 
 Workflow attuale:
 
-- trigger automatico lun-ven ogni ora con cron `0 * * * 1-5`.
+- trigger automatico ogni ora con cron `0 * * * *`.
 - gate orario interno: il job completo parte solo alle 06:00 Europe/Rome.
 - trigger manuale con `workflow_dispatch`.
 - install dipendenze con `npm ci`.
@@ -42,7 +42,7 @@ Esempio (08:00 UTC):
 
 ```yaml
 schedule:
-  - cron: "0 * * * 1-5"
+  - cron: "0 * * * *"
 ```
 
 Poi aggiorna anche lo step `Check 06:00 Europe/Rome` impostando l'ora desiderata.
