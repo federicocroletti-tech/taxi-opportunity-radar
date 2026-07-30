@@ -248,7 +248,10 @@ function stripHtml(value: string): string {
   return value.replace(/<[^>]+>/g, " ");
 }
 
-function sanitizeText(value: string, maxLength = EVENTS_TEXT_MAX_LENGTH): string {
+function sanitizeText(
+  value: string,
+  maxLength = EVENTS_TEXT_MAX_LENGTH,
+): string {
   const decoded = decodeHtml(value);
   const noHtml = stripHtml(decoded);
   const compacted = compactText(noHtml);
@@ -310,7 +313,8 @@ function addHoursToTime(time: string, addHours: number): string {
   }
 
   const totalMinutes = (hours * 60 + minutes + addHours * 60) % (24 * 60);
-  const normalizedMinutes = totalMinutes < 0 ? totalMinutes + 24 * 60 : totalMinutes;
+  const normalizedMinutes =
+    totalMinutes < 0 ? totalMinutes + 24 * 60 : totalMinutes;
   const normalizedHours = Math.floor(normalizedMinutes / 60)
     .toString()
     .padStart(2, "0");
@@ -549,8 +553,7 @@ function parseEventsFromHtml(
 
   const allEvents: ManualEvent[] = [];
   const maxAgeHours = source.maxAgeHours ?? DEFAULT_HTML_MAX_AGE_HOURS;
-  const maxFutureHours =
-    source.maxFutureHours ?? DEFAULT_HTML_MAX_FUTURE_HOURS;
+  const maxFutureHours = source.maxFutureHours ?? DEFAULT_HTML_MAX_FUTURE_HOURS;
 
   for (const match of matches) {
     const payload = match[1]?.trim();
@@ -634,7 +637,10 @@ function parseEventsFromHtml(
   return allEvents;
 }
 
-function parseEventsFromRss(xml: string, source: EventSourceConfig): ManualEvent[] {
+function parseEventsFromRss(
+  xml: string,
+  source: EventSourceConfig,
+): ManualEvent[] {
   const parsed = rssParser.parse(xml) as Record<string, unknown>;
   const rssNode =
     parsed.rss && typeof parsed.rss === "object"
@@ -747,7 +753,10 @@ function dedupeEvents(events: ManualEvent[]): ManualEvent[] {
 
     const key = `${event.name
       .toLowerCase()
-      .replace(/[^a-z0-9\s]/g, "")}|${event.area.toLowerCase()}|${event.startTimeLocal}|${event.kind}`;
+      .replace(
+        /[^a-z0-9\s]/g,
+        "",
+      )}|${event.area.toLowerCase()}|${event.startTimeLocal}|${event.kind}`;
     if (seen.has(key)) {
       continue;
     }
